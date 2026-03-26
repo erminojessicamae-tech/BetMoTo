@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BMT - Luxury Color Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* --- BASE STYLES --- */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #4a0000 0%, #0a0a0a 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #casino-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+    }
+
+    /* --- LUXURY NAVBAR --- */
+    nav {
+      background: linear-gradient(to bottom, #111, #000);
+      border-bottom: 3px solid #d4af37;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .brand {
+      font-family: 'Bungee Inline', cursive;
+      background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 28px;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a {
+      color: #e0e0e0; text-decoration: none; font-weight: 600; font-size: 16px; text-transform: uppercase; transition: color 0.3s;
+    }
+    .nav-links a:hover { color: #fcf6ba; }
+
+    /* --- GAME LAYOUT & WRAPPER --- */
+    .game-wrapper { 
+      position: relative; 
+      width: 100%;
+      max-width: 1100px; 
+      margin: 60px auto 0; 
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 60px;
+      padding-top: 30px;
+      padding-bottom: 50px;
+    }
+
+    /* --- HOW IT WORKS BUTTON (ADJUSTED MORE TO THE LEFT) --- */
+    .how-btn {
+      position: absolute; 
+      top: -35px; /* Moved slightly up to match the other games */
+      left: 0px;  /* Moved to the far left edge of the container */
+      padding: 10px 20px; background: rgba(0,0,0,0.7);
+      border: 2px solid #d4af37; color: #fcf6ba;
+      border-radius: 50px; cursor: pointer; font-weight: 800;
+      font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+      transition: all 0.3s ease; z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .how-btn:hover { background: #d4af37; color: #000; transform: scale(1.05); }
+
+    /* --- LEFT SIDE: 3D FALLING BOX TRAY --- */
+    .dice-tray-wrapper {
+      background: linear-gradient(135deg, #2a2a2a, #000);
+      border: 4px solid #b38728;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 5px 15px rgba(255,255,255,0.1);
+    }
+
+    .dice-tray {
+      background: radial-gradient(circle at top, #220000, #0a0000); 
+      border-top: 10px solid #111;
+      border-left: 20px solid #8a6d1c;
+      border-right: 20px solid #8a6d1c;
+      border-bottom: 40px solid #5a4510;
+      border-radius: 8px;
+      width: 400px;
+      height: 450px; 
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 40px 60px rgba(0,0,0,0.9);
+    }
+
+    .dice-cube {
+      width: 90px;
+      height: 90px;
+      border-radius: 15px;
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 
+        0 15px 25px rgba(0,0,0,0.8), 
+        inset 0 8px 15px rgba(255,255,255,0.4),
+        inset 0 -8px 15px rgba(0,0,0,0.6);
+      border: 4px solid #fff;
+      transform: translateY(-500px); 
+      opacity: 0;
+    }
+
+    #cube1 { bottom: 30px; left: 40px; }
+    #cube2 { bottom: 50px; left: 140px; }
+    #cube3 { bottom: 20px; left: 240px; }
+
+    .falling { animation: dropBounce 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+    @keyframes dropBounce {
+      0% { transform: translateY(-400px) rotate(-45deg); opacity: 0; }
+      40% { opacity: 1; }
+      70% { transform: translateY(0px) rotate(15deg); } 
+      85% { transform: translateY(-40px) rotate(5deg); } 
+      100% { transform: translateY(0px) rotate(10deg); opacity: 1; } 
+    }
+
+    .cube-red { background: linear-gradient(135deg, #cc0000, #660000); }
+    .cube-blue { background: linear-gradient(135deg, #0055cc, #001a4d); }
+    .cube-gold { background: linear-gradient(135deg, #fcf6ba, #b38728); border-color:#000; }
+    .cube-green { background: linear-gradient(135deg, #00b33c, #004d1a); }
+    .cube-pink { background: linear-gradient(135deg, #ff3399, #800040); }
+    .cube-white { background: linear-gradient(135deg, #ffffff, #aaaaaa); border-color:#000; }
+
+    /* --- RIGHT SIDE: COMPACT BETTING BOARD & CONTROLS --- */
+    .side-controls {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 20px;
+      border: 3px solid #b38728;
+      backdrop-filter: blur(15px);
+      width: 320px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    .header-title {
+      color: #fcf6ba;
+      margin: 0 0 5px 0;
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(252, 246, 186, 0.3);
+      text-align: center;
+    }
+
+    .reward-info {
+      color: #aaa;
+      font-size: 14px; 
+      margin-bottom: 20px; 
+      text-align: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 15px;
+    }
+    .reward-info span { color: #d4af37; font-weight: bold; }
+
+    /* COMPACT BET BOARD */
+    .bet-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .color-box {
+      height: 70px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    }
+
+    .color-box:hover { transform: translateY(-3px); }
+    .color-box.active {
+      border-color: #fcf6ba;
+      box-shadow: 0 0 20px rgba(252, 246, 186, 0.7), inset 0 0 15px rgba(255,255,255,0.4);
+      transform: scale(1.05);
+      z-index: 5;
+    }
+
+    .color-name {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: #fff;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
+      z-index: 2;
+    }
+
+    .bg-red { background: linear-gradient(135deg, #cc0000, #660000); }
+    .bg-blue { background: linear-gradient(135deg, #0055cc, #001a4d); }
+    .bg-gold { background: linear-gradient(135deg, #fcf6ba, #b38728); .color-name { color: #000; text-shadow: none;} }
+    .bg-green { background: linear-gradient(135deg, #00b33c, #004d1a); }
+    .bg-pink { background: linear-gradient(135deg, #ff3399, #800040); }
+    .bg-white { background: linear-gradient(135deg, #ffffff, #aaaaaa); .color-name { color: #000; text-shadow: none;} }
+
+    /* CONTROLS AREA */
+    .input-wrapper { display: flex; flex-direction: column; margin-bottom: 20px; }
+    .input-wrapper label { 
+      font-size: 13px; color: #b38728; font-weight: 800; margin-bottom: 12px; 
+      letter-spacing: 1px; text-transform: uppercase; text-align: center;
+    }
+
+    .quick-bet-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .q-btn {
+      padding: 10px; border: 1px solid #b38728; border-radius: 8px;
+      background: #222; color: #fcf6ba; font-size: 14px; font-weight: bold;
+      cursor: pointer; transition: 0.2s;
+    }
+    .q-btn:hover { background: #b38728; color: #000; }
+
+    input[type="number"] { 
+      width: 100%; box-sizing: border-box; padding: 15px; border-radius: 12px; 
+      border: 2px solid #b38728; background: #000; color: #fcf6ba; font-size: 24px; 
+      font-weight: 900; text-align: center; outline: none; box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    .roll-btn { 
+      width: 100%; padding: 18px; background: linear-gradient(to bottom, #fcf6ba, #b38728);
+      color: #000; font-weight: 900; font-size: 20px; border: none; border-radius: 12px; 
+      cursor: pointer; text-transform: uppercase; box-shadow: 0 8px 15px rgba(179, 135, 40, 0.4);
+      transition: all 0.2s;
+    }
+    .roll-btn:hover { filter: brightness(1.1); transform: translateY(-3px); }
+    .roll-btn:active { transform: translateY(2px); }
+
+    /* --- MODAL --- */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9); z-index: 2000; justify-content: center;
+      align-items: center; backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      background: linear-gradient(135deg, #220000, #000);
+      border: 3px solid #d4af37; padding: 40px; border-radius: 20px;
+      text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
+      min-width: 350px;
+    }
+
+    /* --- HOW TO PLAY MODAL SPECIFIC STYLES --- */
+    #howModal .modal-content {
+      background: linear-gradient(135deg, #110000, #000);
+      padding: 30px; 
+      border-radius: 20px;
+      max-width: 400px; 
+      width: 90%;
+      max-height: 80vh; 
+      overflow-y: auto;
+    }
+
+    #howModal h2 { font-size: 24px; margin-bottom: 20px; }
+    
+    .instr-text { text-align: left; line-height: 1.6; color: #ddd; margin: 10px 0; font-size: 15px; }
+    .instr-text p { margin: 15px 0 5px 0; }
+    .instr-text b { color: #fcf6ba; }
+
+    /* IMAGE STYLING WITH GOLD BORDER */
+    .instr-img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 8px;
+      margin: 5px auto 15px auto; 
+      display: block;
+      border: 2px solid #b38728; 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    }
+
+    .close-btn {
+      padding: 15px; border: 2px solid #b38728; border-radius: 12px;
+      cursor: pointer; font-weight: 800; background: linear-gradient(to bottom, #333, #000); 
+      color: #d4af37; transition: all 0.2s ease; text-transform: uppercase;
+      font-size: 14px; width: 100%; margin-top: 25px;
+    }
+    .close-btn:hover { border-color: #fcf6ba; transform: translateY(-2px); }
+
+  </style>
+</head>
+<body>
+
+  <audio id="winSFX" src="victory.mp3"></audio>
+  <audio id="loseSFX" src="lose.mp3"></audio>
+  <audio id="rollSFX" src="https://actions.google.com/sounds/v1/foley/clock_ticking.ogg" loop></audio>
+
+  <canvas id="casino-bg"></canvas>
+
+  <nav>
+    <a href="casino-landing.html" class="brand">BMT (BetMoTo)</a>
+    <div class="nav-links">
+      <a href="casino-landing.html">Home</a>
+      <a href="#">Tokens</a>
+      <a href="#">Score Board</a>
+    </div>
+  </nav>
+
+  <div class="game-wrapper">
+    <button class="how-btn" onclick="openHowItWorks()">❓ How it Works</button>
+
+    <div class="game-container">
+      
+      <div class="dice-tray-wrapper">
+        <div class="dice-tray">
+          <div class="dice-cube cube-gold falling" id="cube1"></div>
+          <div class="dice-cube cube-red falling" id="cube2"></div>
+          <div class="dice-cube cube-blue falling" id="cube3"></div>
+        </div>
+      </div>
+
+      <div class="side-controls">
+        <h3 class="header-title">COLOR QUEST</h3>
+        <div class="reward-info">
+          Multiplier: <span>x3</span> per matching dice
+        </div>
+        
+        <div class="bet-board">
+          <div class="color-box bg-red" onclick="selectColor(this, 'RED')">
+            <span class="color-name">RED</span>
+          </div>
+          <div class="color-box bg-blue" onclick="selectColor(this, 'BLUE')">
+            <span class="color-name">BLUE</span>
+          </div>
+          <div class="color-box bg-gold" onclick="selectColor(this, 'GOLD')">
+            <span class="color-name">GOLD</span>
+          </div>
+          <div class="color-box bg-green" onclick="selectColor(this, 'GREEN')">
+            <span class="color-name">GREEN</span>
+          </div>
+          <div class="color-box bg-pink" onclick="selectColor(this, 'PINK')">
+            <span class="color-name">PINK</span>
+          </div>
+          <div class="color-box bg-white" onclick="selectColor(this, 'WHITE')">
+            <span class="color-name">WHITE</span>
+          </div>
+        </div>
+
+        <div class="input-wrapper">
+          <label>BET PER COLOR</label>
+          <div class="quick-bet-row">
+              <button type="button" class="q-btn" onclick="setBet(10)">10</button>
+              <button type="button" class="q-btn" onclick="setBet(50)">50</button>
+              <button type="button" class="q-btn" onclick="setBet(100)">100</button>
+              <button type="button" class="q-btn" onclick="setBet('MAX')">MAX</button>
+          </div>
+          <input type="number" id="betInput" value="100" step="10" min="10">
+        </div>
+        
+        <button class="roll-btn" id="rollBtn" onclick="rollColors()">ROLL COLORS</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 350px; padding: 30px;">
+      <h2 style="color: #fcf6ba; font-family: 'Bungee Inline'; margin-top: 0; font-size: 26px;">LOCK IN BET?</h2>
+      
+      <div style="background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #b38728;">
+        <p style="font-size: 14px; color: #aaa; margin: 0 0 5px 0;">Total Wager:</p>
+        <p style="font-size: 28px; font-weight: 900; color: #ff4c4c; margin: 0; text-shadow: 0 0 10px rgba(255,76,76,0.3);"><span id="confirmAmount">0</span> PTS</p>
+        
+        <hr style="border: none; border-top: 1px solid #333; margin: 15px 0;">
+        
+        <p style="font-size: 14px; color: #aaa; margin: 0 0 5px 0;">Colors Selected:</p>
+        <p style="font-size: 18px; font-weight: 800; color: #4caf50; margin: 0; text-transform: uppercase;"><span id="confirmType">TYPE</span></p>
+      </div>
+
+      <p style="font-size: 13px; color: #ddd; margin-bottom: 25px;">Ready to drop the dice? Bets are final once rolled.</p>
+      
+      <div style="display: flex; gap: 10px;">
+        <button class="close-btn" style="flex: 1; border-color: #ff4c4c; color: #ff4c4c; background: transparent; box-shadow: none; margin-top: 0;" onclick="closeModal('confirmModal')">CANCEL</button>
+        <button class="close-btn" style="flex: 1; border-color: #4caf50; color: #4caf50; background: rgba(76, 175, 80, 0.1); box-shadow: none; margin-top: 0;" onclick="executeRoll()">ROLL!</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modalBody"></div>
+      <button class="roll-btn" style="margin-top:20px; font-size: 16px; padding: 12px;" onclick="closeModal('resultModal')">CONTINUE</button>
+    </div>
+  </div>
+
+  <div id="howModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 style="color: #fcf6ba; font-family: 'Bungee Inline'; margin-top: 0;">HOW TO PLAY</h2>
+      
+      <div class="instr-text">
+        <p>1. <b>Pick Your Colors:</b> Select one or more colors from the betting board.</p>
+        <img src="colors.png" alt="Color Options" class="instr-img">
+        
+        <p>2. <b>Set Amount:</b> Enter your bet amount per color manually or use the quick buttons.</p>
+        <img src="betcolors.png" alt="Bet Amount" class="instr-img">
+        
+        <p>3. <b>Roll:</b> Hit the "ROLL COLORS" button to drop the 3 dice into the tray.</p>
+        <img src="roll2.png" alt="Roll Button" class="instr-img" style="max-width: 60%;">
+        
+        <p>4. <b>Win or Lose:</b> You win <b>3x</b> your bet amount for every die that lands on your chosen color(s)!</p>
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+          <img src="win.png" alt="Win Screen" class="instr-img" style="width: 45%; margin: 0;">
+          <img src="lose.png" alt="Lose Screen" class="instr-img" style="width: 45%; margin: 0;">
+        </div>
+      </div>
+
+      <button class="close-btn" onclick="closeModal('howModal')">CLOSE</button>
+    </div>
+  </div>
+
+  <script>
+    /* --- PARTICLES BACKGROUND --- */
+    const canvas = document.getElementById('casino-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const symbols = ['🟥', '🟦', '🟨', '🟩', '🟪', '⬜', '🪙']; 
+    const particles = [];
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width; this.y = Math.random() * -canvas.height; 
+        this.size = Math.random() * 20 + 15; this.speedY = Math.random() * 1.5 + 0.5; 
+        this.symbol = symbols[Math.floor(Math.random() * symbols.length)]; this.opacity = Math.random() * 0.3; 
+      }
+      update() { this.y += this.speedY; if (this.y > canvas.height + 50) this.reset(); }
+      draw() { ctx.globalAlpha = this.opacity; ctx.font = `${this.size}px Arial`; ctx.fillText(this.symbol, this.x, this.y); }
+    }
+    for (let i = 0; i < 35; i++) particles.push(new Particle());
+    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+    animate();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    /* --- GAME LOGIC & ANIMATION --- */
+    let userTokens = 1250; 
+    let selectedColors = []; 
+    const betInput = document.getElementById('betInput');
+
+    // --- Modal Logic ---
+    function openHowItWorks() { document.getElementById('howModal').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id || 'resultModal').style.display = 'none'; }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        event.target.style.display = "none";
+      }
+    }
+
+    function setBet(amount) { 
+        if(amount === 'MAX') { 
+            const colorCount = Math.max(1, selectedColors.length);
+            betInput.value = Math.floor(userTokens / colorCount); 
+        } else { 
+            betInput.value = amount; 
+        } 
+    }
+
+    function selectColor(element, color) {
+      if (selectedColors.includes(color)) {
+        selectedColors = selectedColors.filter(c => c !== color);
+        element.classList.remove('active');
+      } else {
+        selectedColors.push(color);
+        element.classList.add('active');
+      }
+    }
+
+    // 1. Validation & Open Confirmation Modal
+    function rollColors() {
+      if (selectedColors.length === 0) {
+        alert("Please select at least one color from the board first!");
+        return;
+      }
+      
+      const betPerColor = parseInt(betInput.value);
+      const totalBetAmount = betPerColor * selectedColors.length;
+
+      if (totalBetAmount > userTokens) {
+        alert(`Not enough tokens! You selected ${selectedColors.length} colors. Total bet: ${totalBetAmount}`);
+        return;
+      }
+
+      // Update and Show the Confirm Modal
+      document.getElementById('confirmAmount').innerText = totalBetAmount;
+      document.getElementById('confirmType').innerText = selectedColors.join(', ');
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    // 2. The actual logic that runs when they click "ROLL!"
+    function executeRoll() {
+      closeModal('confirmModal'); // Hide the confirmation modal
+
+      const betPerColor = parseInt(betInput.value);
+      const totalBetAmount = betPerColor * selectedColors.length;
+
+      userTokens -= totalBetAmount;
+
+      const rollBtn = document.getElementById('rollBtn');
+      rollBtn.disabled = true;
+      rollBtn.innerText = "ROLLING...";
+
+      // Start the rolling tension sound
+      const rollSFX = document.getElementById('rollSFX');
+      rollSFX.currentTime = 0;
+      rollSFX.play().catch(e => console.log("Audio block: user interaction needed"));
+
+      const cubes = [
+        document.getElementById('cube1'),
+        document.getElementById('cube2'),
+        document.getElementById('cube3')
+      ];
+
+      const colorNames = ['RED', 'BLUE', 'GOLD', 'GREEN', 'PINK', 'WHITE'];
+      const classMapping = {
+        'RED': 'cube-red', 'BLUE': 'cube-blue', 'GOLD': 'cube-gold',
+        'GREEN': 'cube-green', 'PINK': 'cube-pink', 'WHITE': 'cube-white'
+      };
+
+      let rolledResults = [];
+
+      cubes.forEach(cube => {
+        cube.classList.remove('falling');
+        void cube.offsetWidth; 
+        
+        Object.values(classMapping).forEach(c => cube.classList.remove(c));
+
+        const randomColorName = colorNames[Math.floor(Math.random() * colorNames.length)];
+        rolledResults.push(randomColorName);
+        
+        cube.classList.add(classMapping[randomColorName]);
+        cube.classList.add('falling');
+      });
+
+      // Show results and stop rolling sound
+      setTimeout(() => {
+        rollSFX.pause();
+        rollBtn.disabled = false;
+        rollBtn.innerText = "ROLL COLORS";
+        displayResult(rolledResults, betPerColor, totalBetAmount);
+      }, 1000);
+    }
+
+    function displayResult(rolledResults, betPerColor, totalBetAmount) {
+      let totalWon = 0;
+      let breakdownHTML = "";
+
+      selectedColors.forEach(color => {
+        const matchCount = rolledResults.filter(r => r === color).length;
+        
+        if (matchCount > 0) {
+          const winAmount = betPerColor * 3 * matchCount;
+          totalWon += winAmount;
+          breakdownHTML += `<p style="color:#4caf50; margin: 5px 0; font-size: 16px;">${color}: ${matchCount} Match(es) -> +${winAmount}</p>`;
+        } else {
+          breakdownHTML += `<p style="color:#ff4c4c; margin: 5px 0; font-size: 16px;">${color}: No Match -> -${betPerColor}</p>`;
+        }
+      });
+
+      userTokens += totalWon;
+      
+      const netProfit = totalWon - totalBetAmount;
+      const resultTitle = netProfit >= 0 ? 'YOU WIN!' : 'YOU LOSE';
+      const resultColor = netProfit >= 0 ? '#4caf50' : '#ff4c4c';
+
+      // Play Win or Lose Sound
+      if(netProfit >= 0) {
+        const sfx = document.getElementById('winSFX');
+        sfx.currentTime = 0;
+        sfx.play().catch(e => console.log(e));
+        setTimeout(() => { sfx.pause(); sfx.currentTime = 0; }, 2000); 
+      } else {
+        const sfx = document.getElementById('loseSFX');
+        sfx.currentTime = 0;
+        sfx.play().catch(e => console.log(e));
+        setTimeout(() => { sfx.pause(); sfx.currentTime = 0; }, 2000);
+      }
+
+      document.getElementById('modalBody').innerHTML = `
+        <h2 style="color:#fcf6ba; font-size: 22px; margin: 0 0 15px 0; letter-spacing: 1px;">DICE RESULTS</h2>
+        
+        <div style="font-size: 22px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.3);">
+            ${rolledResults.join(' • ')}
+        </div>
+        
+        <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; display: inline-block; min-width: 200px;">
+            <p style="color:#fff; margin: 0 0 10px 0; font-size: 14px; text-align: center; border-bottom: 1px solid #444; padding-bottom: 5px;">BET BREAKDOWN</p>
+            ${breakdownHTML}
+        </div>
+        
+        <h2 style="color:${resultColor}; font-size: 32px; margin: 0;">${resultTitle}</h2>
+        <p style="font-size:24px; font-weight: bold; margin: 5px 0;">${netProfit > 0 ? '+' : ''}${netProfit} Tokens</p>
+        
+        <p style="font-size: 14px; color: #aaa; margin-top: 15px;">New Balance: <span style="color:#fcf6ba; font-weight:bold;">${userTokens}</span></p>
+      `;
+      document.getElementById('resultModal').style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>
