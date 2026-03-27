@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BMT - Luxury Double Dice Duel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* --- BASE STYLES --- */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #4a0000 0%, #0a0a0a 100%);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #casino-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+    }
+
+    /* --- LUXURY NAVBAR --- */
+    nav {
+      background: linear-gradient(to bottom, #111, #000);
+      border-bottom: 3px solid #d4af37;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .brand {
+      font-family: 'Bungee Inline', cursive;
+      background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 28px;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .nav-links { display: flex; gap: 20px; }
+    .nav-links a {
+      color: #e0e0e0; text-decoration: none; font-weight: 600; font-size: 16px; text-transform: uppercase; transition: color 0.3s;
+    }
+    .nav-links a:hover { color: #fcf6ba; }
+
+    /* --- GAME LAYOUT & WRAPPER --- */
+    .game-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 60px auto 0;
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: row; 
+      justify-content: center;
+      align-items: center;
+      gap: 30px; 
+      flex-wrap: wrap;
+      padding-top: 30px;
+      padding-bottom: 50px;
+    }
+
+    /* --- HOW IT WORKS BUTTON --- */
+    .how-btn {
+      position: absolute; 
+      top: -35px; 
+      left: 0px; 
+      padding: 10px 20px; background: rgba(0,0,0,0.7);
+      border: 2px solid #d4af37; color: #fcf6ba;
+      border-radius: 50px; cursor: pointer; font-weight: 800;
+      font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+      transition: all 0.3s ease; z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .how-btn:hover { background: #d4af37; color: #000; transform: scale(1.05); }
+
+    /* --- LEFT SIDE: THE DICE PLATFORM (LARGER) --- */
+    .dice-platform-wrapper {
+      background: rgba(0, 0, 0, 0.6);
+      border: 3px solid #b38728;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .dice-platform {
+      background: radial-gradient(circle at center, #3a0000, #110000); 
+      border: 8px solid #1a1a1a;
+      border-radius: 50%; 
+      width: 550px; 
+      height: 350px; 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px; 
+      box-shadow: inset 0 20px 40px rgba(0,0,0,0.9), 0 10px 20px rgba(0,0,0,0.5);
+      position: relative;
+      perspective: 1000px; 
+    }
+
+    /* 3D Static Dice */
+    .css-dice {
+      width: 130px; 
+      height: 130px; 
+      background: linear-gradient(135deg, #fcf6ba, #b38728); 
+      border-radius: 25px; 
+      box-shadow: 
+        0 15px 30px rgba(0,0,0,0.7), 
+        inset 0 10px 20px rgba(255,255,255,0.6),
+        inset 0 -10px 20px rgba(0,0,0,0.4);
+      border: 4px solid #fff; 
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dice-1 { transform: rotate(-15deg) rotateX(20deg); }
+    .dice-2 { transform: rotate(10deg) rotateX(20deg); }
+
+    /* The Dots (Pips) */
+    .dot {
+      width: 18px; height: 18px;
+      background: #111;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    /* Top Left & Right */
+    .d4-1, .d5-1 { top: 15%; left: 15%; } 
+    .d4-2, .d5-2 { top: 15%; right: 15%; }
+    
+    /* Bottom Left & Right */
+    .d4-3, .d5-4 { bottom: 15%; left: 15%; } 
+    .d4-4, .d5-5 { bottom: 15%; right: 15%; }
+    
+    /* Perfect Centers */
+    .d5-3 { top: 50%; left: 50%; transform: translate(-50%, -50%); } /* Center for 1, 3, 5 */
+    .d6-1 { top: 50%; left: 15%; transform: translateY(-50%); } /* Middle Left for 6 */
+    .d6-2 { top: 50%; right: 15%; transform: translateY(-50%); } /* Middle Right for 6 */
+
+    /* Shaking Animation */
+    @keyframes shakeDice {
+      0% { transform: rotate(-15deg) rotateX(20deg) translate(0,0); }
+      25% { transform: rotate(-5deg) rotateX(40deg) translate(-15px, -25px); }
+      50% { transform: rotate(-25deg) rotateX(0deg) translate(15px, -15px); }
+      75% { transform: rotate(-5deg) rotateX(30deg) translate(-10px, 20px); }
+      100% { transform: rotate(-15deg) rotateX(20deg) translate(0,0); }
+    }
+    
+    @keyframes shakeDice2 {
+      0% { transform: rotate(10deg) rotateX(20deg) translate(0,0); }
+      25% { transform: rotate(20deg) rotateX(0deg) translate(15px, -20px); }
+      50% { transform: rotate(0deg) rotateX(40deg) translate(-15px, -15px); }
+      75% { transform: rotate(25deg) rotateX(10deg) translate(10px, 25px); }
+      100% { transform: rotate(10deg) rotateX(20deg) translate(0,0); }
+    }
+
+    .shaking-1 { animation: shakeDice 0.4s infinite; }
+    .shaking-2 { animation: shakeDice2 0.4s infinite; }
+
+    /* --- RIGHT SIDE: CONTROLS PANEL --- */
+    .side-controls {
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px; 
+      border-radius: 15px; 
+      border: 3px solid #b38728;
+      backdrop-filter: blur(15px);
+      width: 280px; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    .header-title {
+      color: #fcf6ba;
+      margin: 0 0 15px 0; 
+      font-size: 18px; 
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(252, 246, 186, 0.3);
+      text-align: center;
+    }
+
+    .bet-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; 
+      width: 100%;
+      margin-bottom: 20px; 
+    }
+
+    .bet-btn {
+      width: 100%;
+      height: 70px; 
+      border-radius: 10px; 
+      background: linear-gradient(to bottom, #1a1a1a, #000);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      border: 2px solid #555;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .bet-btn:hover { transform: translateY(-3px); }
+    .bet-btn:active { transform: translateY(2px); }
+
+    .bet-btn strong { font-size: 16px; color: #fff; letter-spacing: 1px; margin-bottom: 2px; } 
+    .bet-btn span { font-size: 11px; color: #aaa; } 
+
+    .multiplier-badge {
+      position: absolute;
+      top: -8px; 
+      right: -8px; 
+      background: #d4af37;
+      color: #000;
+      font-weight: 900;
+      font-size: 12px; 
+      padding: 3px 8px; 
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+      border: 2px solid #fff;
+    }
+
+    .tiny-dice-row { display: flex; gap: 4px; margin-bottom: 3px; }
+    .tiny-dice { width: 12px; height: 12px; background: #fcf6ba; border-radius: 3px; display: flex; justify-content: center; align-items: center; font-size: 9px; color: #000; font-weight: bold; border: 1px solid #000;}
+
+    /* Active Selection Effects */
+    .bet-btn.active.btn-big { border-color: #ff4c4c; background: linear-gradient(to bottom, #4a0000, #000); box-shadow: 0 0 20px rgba(255, 76, 76, 0.5); }
+    .bet-btn.active.btn-small { border-color: #4ca6ff; background: linear-gradient(to bottom, #001a4a, #000); box-shadow: 0 0 20px rgba(76, 166, 255, 0.5); }
+    .bet-btn.active.btn-triple { border-color: #fcf6ba; background: linear-gradient(to bottom, #3a2a00, #000); box-shadow: 0 0 20px rgba(252, 246, 186, 0.5); }
+
+    /* INPUT & CONFIRM */
+    .input-wrapper { display: flex; flex-direction: column; margin-bottom: 12px; } 
+    .input-wrapper label { font-size: 12px; color: #b38728; font-weight: 800; margin-bottom: 6px; letter-spacing: 1px; text-align: center;} 
+    
+    .quick-bet-row { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 6px; 
+      margin-bottom: 10px; 
+    }
+    
+    .q-btn {
+      padding: 8px; 
+      border: 1px solid #b38728; 
+      border-radius: 6px;
+      background: #222; 
+      color: #fcf6ba; 
+      font-size: 13px; 
+      font-weight: bold;
+      cursor: pointer; 
+      transition: 0.2s;
+    }
+    .q-btn:hover { background: #b38728; color: #000; }
+
+    input[type="number"] { 
+      width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 2px solid #b38728; 
+      background: #000; color: #fcf6ba; font-size: 18px; 
+      font-weight: 900; text-align: center; outline: none; box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    .confirm-btn {
+      width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: 900; font-size: 16px; color: #000; cursor: pointer;
+      background: linear-gradient(to bottom, #fcf6ba, #b38728); box-shadow: 0 6px 15px rgba(179, 135, 40, 0.4); text-transform: uppercase; transition: all 0.2s;
+    }
+    .confirm-btn:hover { filter: brightness(1.1); transform: translateY(-3px); }
+    .confirm-btn:active { transform: translateY(2px); }
+    .confirm-btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* --- MODALS --- */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(8px);
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #220000, #000); border: 3px solid #d4af37; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3); width: 90%; max-width: 480px; 
+    }
+
+    /* HOW TO PLAY MODAL SPECIFIC STYLES */
+    #howModal .modal-content {
+      background: linear-gradient(135deg, #110000, #000);
+      padding: 30px; 
+      border-radius: 20px;
+      max-width: 400px; 
+      max-height: 80vh; 
+      overflow-y: auto;
+    }
+
+    #howModal h2 { font-size: 24px; margin-bottom: 20px; }
+    
+    .instr-text { text-align: left; line-height: 1.6; color: #ddd; margin: 10px 0; font-size: 15px; }
+    .instr-text p { margin: 15px 0; }
+    .instr-text b { color: #fcf6ba; }
+
+    /* IMAGE STYLING WITH GOLD BORDER */
+    .instr-img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 8px;
+      margin: 5px auto 15px auto; 
+      display: block;
+      border: 2px solid #b38728; 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    }
+
+    /* RESULT MODAL SPECIFIC STYLES */
+    .result-equation {
+      display: flex; justify-content: center; align-items: center; gap: 18px; margin-bottom: 20px;
+    }
+
+    .res-dice { width: 70px; height: 70px; background: #b38728; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 40px; font-weight: 900; color: #000; border: 3px solid #fff; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
+    .res-math { font-size: 45px; font-weight: bold; color: #888; }
+    
+    .result-circle {
+      width: 110px; height: 110px; border-radius: 50%; border: 5px solid #b38728; background: #111; display: flex; justify-content: center; align-items: center; font-size: 55px; font-weight: 900; color: #fff; box-shadow: 0 0 25px rgba(212, 175, 55, 0.5), inset 0 0 15px rgba(0,0,0,0.9);
+    }
+
+    .result-text-area { font-size: 16px; color: #ccc; line-height: 1.6; margin-top: 15px;}
+    .result-text-area span { display: block; }
+    .highlight-win { font-weight: 900; font-size: 30px; margin: 15px 0; letter-spacing: 2px;}
+    .points-text { font-size: 22px; font-weight: bold; }
+
+    .close-btn { margin-top: 25px; width: 100%; padding: 15px; background: #333; color: #fff; border: 2px solid #555; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
+    .close-btn:hover { background: #555; border-color: #fcf6ba; color: #d4af37;}
+
+  </style>
+</head>
+<body>
+
+  <audio id="winSFX" src="victory.mp3"></audio>
+  <audio id="loseSFX" src="lose.mp3"></audio>
+  <audio id="rollSFX" src="https://actions.google.com/sounds/v1/foley/clock_ticking.ogg" loop></audio>
+
+  <canvas id="casino-bg"></canvas>
+
+  <nav>
+    <a href="../../casino-landing.html" class="brand">BMT (BetMoTo)</a>
+    <div class="nav-links">
+      <a href="../../casino-landing.html">Home</a>
+      <a href="#">Tokens</a>
+      <a href="#">Score Board</a>
+    </div>
+  </nav>
+
+  <div class="game-wrapper">
+    <button class="how-btn" onclick="openHowItWorks()">❓ How it Works</button>
+
+    <div class="game-container">
+      
+      <div class="dice-platform-wrapper">
+        <div class="dice-platform">
+          <div class="css-dice dice-1" id="cube1">
+            <div class="dot d4-1"></div><div class="dot d4-2"></div>
+            <div class="dot d4-3"></div><div class="dot d4-4"></div>
+          </div>
+          <div class="css-dice dice-2" id="cube2">
+            <div class="dot d5-1"></div><div class="dot d5-2"></div>
+            <div class="dot d5-3"></div>
+            <div class="dot d5-4"></div><div class="dot d5-5"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-controls">
+        <h3 class="header-title">DOUBLE DICE DUEL</h3>
+
+        <div class="bet-buttons">
+          <div class="bet-btn btn-big" onclick="selectBet(this, 'BIG')">
+            <div class="multiplier-badge">x2</div>
+            <strong>BET BIG</strong>
+            <span>(Sum: 8 to 12)</span>
+          </div>
+          
+          <div class="bet-btn btn-small" onclick="selectBet(this, 'SMALL')">
+            <div class="multiplier-badge">x2</div>
+            <strong>BET SMALL</strong>
+            <span>(Sum: 2 to 6)</span>
+          </div>
+
+          <div class="bet-btn btn-triple" onclick="selectBet(this, 'DOUBLE')">
+            <div class="multiplier-badge">x5</div>
+            <div class="tiny-dice-row">
+              <div class="tiny-dice">1</div><div class="tiny-dice">1</div>
+            </div>
+            <strong>BET DOUBLE</strong>
+            <span>(Same Number, e.g. 4 & 4)</span>
+          </div>
+        </div>
+
+        <div class="input-wrapper">
+          <label>AMOUNT</label>
+          <div class="quick-bet-row">
+              <button type="button" class="q-btn" onclick="setBet(10)">10</button>
+              <button type="button" class="q-btn" onclick="setBet(50)">50</button>
+              <button type="button" class="q-btn" onclick="setBet(100)">100</button>
+              <button type="button" class="q-btn" onclick="setBet('MAX')">MAX</button>
+          </div>
+          <input type="number" id="betInput" value="100" step="10" min="10">
+        </div>
+        
+        <button class="confirm-btn" id="confirmBtn" onclick="confirmBet()">ROLL DICE</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="howModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 style="color: #fcf6ba; font-family: 'Bungee Inline'; margin-top: 0;">HOW TO PLAY</h2>
+      
+      <div class="instr-text">
+        <p>1. <b>Pick a Bet:</b> Choose <b>BIG</b> (Sum 8-12), <b>SMALL</b> (Sum 2-6), or <b>DOUBLE</b> (Matching dice like 4 & 4).</p>
+        <img src="betdice.png" alt="Betting Options" class="instr-img" style="max-width: 90%;">
+
+        <p>2. <b>Set Amount:</b> Enter your tokens manually or use the quick bet buttons.</p>
+        <img src="amount3.png" alt="Bet Amount" class="instr-img">
+
+        <p>3. <b>Roll:</b> Hit "ROLL DICE" to shake the dice and reveal the sum.</p>
+        <img src="roll3.png" alt="Roll Button" class="instr-img">
+
+        <p>4. <b>Win or Lose:</b> Win <b>2x</b> your stake for Big/Small, or a massive <b>5x</b> for guessing a Double! <br><br><i>(Note: A sum of 7 is a House win)</i>.</p>
+        <img src="win3.png" alt="Game Result" class="instr-img" style="max-width: 60%;">
+      </div>
+
+      <button class="close-btn" style="margin-top: 15px;" onclick="closeHowModal()">CLOSE</button>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-content">
+      
+      <div class="result-equation">
+        <div class="res-dice" id="resD1">?</div>
+        <div class="res-math">+</div>
+        <div class="res-dice" id="resD2">?</div>
+        <div class="res-math">=</div>
+        <div class="result-circle" id="resultSum">?</div>
+      </div>
+
+      <div class="result-text-area" id="resultTextArea">
+        </div>
+      <button class="close-btn" onclick="closeModal()">CONTINUE</button>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+        try { const res = await fetch('../../../../wallet.php'); userTokens = parseInt(await res.text()) || 1000; } catch(e) {}
+    });
+    /* --- PARTICLES BACKGROUND --- */
+    const canvas = document.getElementById('casino-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const symbols = ['🎲', '🪙', '💎']; 
+    const particles = [];
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -canvas.height; 
+        this.size = Math.random() * 20 + 15; 
+        this.speedY = Math.random() * 1.5 + 0.5; 
+        this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+        this.opacity = Math.random() * 0.25; 
+      }
+      update() { this.y += this.speedY; if (this.y > canvas.height + 50) this.reset(); }
+      draw() { ctx.globalAlpha = this.opacity; ctx.font = `${this.size}px Arial`; ctx.fillText(this.symbol, this.x, this.y); }
+    }
+    for (let i = 0; i < 25; i++) particles.push(new Particle());
+    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+    animate();
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    /* --- MODAL LOGIC --- */
+    function openHowItWorks() { document.getElementById('howModal').style.display = 'flex'; }
+    function closeHowModal() { document.getElementById('howModal').style.display = 'none'; }
+    function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
+
+    // Close modals by clicking outside the content
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        event.target.style.display = "none";
+      }
+    }
+
+    /* --- GAME SELECTION & ANIMATION LOGIC --- */
+    let userTokens = 1250; // Placeholder for MAX bet
+    const betInput = document.getElementById('betInput');
+
+    function setBet(amount) { 
+        if(amount === 'MAX') { 
+            betInput.value = userTokens; 
+        } else { 
+            betInput.value = amount; 
+        } 
+    }
+
+    let selectedType = null;
+
+    function selectBet(element, type) {
+      document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      selectedType = type;
+    }
+
+    // Helper to generate CSS dots for dice faces (scaled for larger dice)
+   function setDiceFace(cubeId, number) {
+      const cube = document.getElementById(cubeId);
+      cube.innerHTML = ''; // Clear existing dots
+      
+      const positions = {
+        1: ['d5-3'],
+        2: ['d4-1', 'd4-4'],
+        3: ['d4-1', 'd5-3', 'd4-4'],
+        4: ['d4-1', 'd4-2', 'd4-3', 'd4-4'],
+        5: ['d5-1', 'd5-2', 'd5-3', 'd5-4', 'd5-5'],
+        6: ['d5-1', 'd5-2', 'd6-1', 'd6-2', 'd5-4', 'd5-5'] 
+      };
+
+      positions[number].forEach(pos => {
+        const dot = document.createElement('div');
+        dot.className = `dot ${pos}`;
+        cube.appendChild(dot);
+      });
+    }
+
+    async function confirmBet() {
+      if (!selectedType) return alert("Please select a bet first!");
+      const betAmt = parseFloat(document.getElementById('betInput').value);
+      if (isNaN(betAmt) || betAmt <= 0) return alert("Enter valid amount!");
+
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = true; confirmBtn.innerText = "WAITING...";
+
+      try {
+        const response = await fetch('../../controller.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ compute: true, game: "Dice Duel", type: selectedType, points: betAmt })
+        });
+        const data = await response.json();
+        if (!data.success) { alert(data.message); confirmBtn.disabled = false; confirmBtn.innerText = "ROLL DICE"; return; }
+
+        confirmBtn.innerText = "ROLLING...";
+        const rollSFX = document.getElementById('rollSFX');
+        rollSFX.currentTime = 0; rollSFX.play().catch(e=>e);
+
+        const cube1 = document.getElementById('cube1'); const cube2 = document.getElementById('cube2');
+        cube1.classList.add('shaking-1'); cube2.classList.add('shaking-2');
+
+        let rollInterval = setInterval(() => {
+          setDiceFace('cube1', Math.floor(Math.random() * 6) + 1);
+          setDiceFace('cube2', Math.floor(Math.random() * 6) + 1);
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(rollInterval); 
+          document.getElementById('cube1').classList.remove('shaking-1'); 
+          document.getElementById('cube2').classList.remove('shaking-2');
+
+          // Server Math
+          const d1 = (data.num1 % 6) + 1;
+          const d2 = (data.num2 % 6) + 1;
+          const sum = d1 + d2;
+          
+          userTokens = data.new_balance;
+
+          setDiceFace('cube1', d1); 
+          setDiceFace('cube2', d2);
+
+          // SFX logic
+          if(data.is_win) {
+              const sfx = document.getElementById('winSFX'); sfx.currentTime = 0; sfx.play().catch(e=>e);
+              setTimeout(() => { sfx.pause(); }, 2000);
+          } else {
+              const sfx = document.getElementById('loseSFX'); sfx.currentTime = 0; sfx.play().catch(e=>e);
+              setTimeout(() => { sfx.pause(); }, 2000);
+          }
+
+          document.getElementById('resD1').innerText = d1; document.getElementById('resD2').innerText = d2;
+          const resultSum = document.getElementById('resultSum'); resultSum.innerText = sum;
+          resultSum.style.color = data.is_win ? "#fcf6ba" : "#ff4c4c"; resultSum.style.borderColor = data.is_win ? "#fcf6ba" : "#ff4c4c";
+
+          let resultCategory = sum === 7 ? "SEVEN (House Wins)" : (sum >= 8 ? "BIG" : "SMALL");
+          if (d1 === d2) resultCategory += " & DOUBLE";
+
+          document.getElementById('resultTextArea').innerHTML = `
+            <span>Your Bet: <strong>${selectedType}</strong></span>
+            <span>Result: <strong>${resultCategory}</strong></span>
+            <span class="highlight-win" style="color: ${data.is_win ? '#4caf50' : '#ff4c4c'}">${data.is_win ? 'YOU WIN!' : 'DEFEATED'}</span>
+            <span class="points-text" style="color: ${data.is_win ? '#4caf50' : '#ff4c4c'}">${data.is_win ? '+' : '-'}${data.is_win ? data.reward : betAmt} PTS</span>
+            <p style="font-size: 14px; color: #aaa; margin-top: 15px;">New Balance: <span style="color:#fcf6ba; font-weight:bold;">${userTokens}</span></p>
+          `;
+
+          setTimeout(() => { document.getElementById('resultModal').style.display = 'flex'; confirmBtn.disabled = false; confirmBtn.innerText = "ROLL DICE"; }, 600);
+        }, 2000);
+      } catch (error) { alert("Connection error."); confirmBtn.disabled = false; confirmBtn.innerText = "ROLL DICE"; }
+    }
+
+  </script>
+
+</body>
+</html>
