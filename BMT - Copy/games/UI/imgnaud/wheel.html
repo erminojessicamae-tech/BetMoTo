@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BMT - Luxury 3D Roulette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Inline&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    /* --- 1. BASE STYLES --- */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at center, #4a0000 0%, #0a0a0a 100%);
+      color: #fff; text-align: center; margin: 0; overflow-x: hidden; min-height: 100vh;
+    }
+
+    #casino-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+    nav {
+      background: linear-gradient(to bottom, #111, #000);
+      border-bottom: 3px solid #d4af37; padding: 18px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 1000;
+    }
+
+    .brand {
+      font-family: 'Bungee Inline', cursive;
+      background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-size: 28px; text-decoration: none;
+    }
+
+    .nav-links a { color: #e0e0e0; text-decoration: none; font-weight: 600; margin-left: 20px; text-transform: uppercase; }
+
+    /* --- 2. LAYOUT --- */
+    .game-wrapper { position: relative; max-width: 1200px; margin: 60px auto 0; }
+
+    .game-container {
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      gap: 40px;
+      margin: 30px auto; 
+      flex-wrap: nowrap;
+    }
+
+    /* --- 3. HOW IT WORKS BUTTON --- */
+    .how-btn {
+      position: absolute; 
+      top: -35px; 
+      left: 20px; 
+      padding: 10px 20px; background: rgba(0,0,0,0.7);
+      border: 2px solid #d4af37; color: #fcf6ba;
+      border-radius: 50px; cursor: pointer; font-weight: 800;
+      font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+      transition: all 0.3s ease; z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .how-btn:hover { background: #d4af37; color: #000; transform: scale(1.05); }
+
+    /* --- 4. WHEEL DESIGN --- */
+    .wheel-container { position: relative; width: 500px; height: 500px; filter: drop-shadow(0 25px 40px rgba(0,0,0,0.9)); flex-shrink: 0; }
+    
+    #wheel {
+      width: 100%; height: 100%; border-radius: 50%; position: relative;
+      transition: transform 4s cubic-bezier(0.1, 0, 0.15, 1);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5); overflow: hidden;
+    }
+
+    #wheel::after {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 140px; height: 140px; background: radial-gradient(circle at 30% 30%, #fcf6ba, #b38728 60%, #4a3600);
+      border-radius: 50%; z-index: 5; border: 2px solid #111; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    
+    .pointer {
+      position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent;
+      border-top: 50px solid #fcf6ba; z-index: 10; filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.8));
+    }
+
+    .number {
+      position: absolute; left: 50%; top: 50%; width: 40px; height: 40px;
+      margin-left: -20px; margin-top: -20px; font-weight: 800; font-size: 18px; 
+      color: white; text-shadow: 1px 1px 2px #000;
+    }
+
+    /* --- 5. CONTROL BOX --- */
+    .side-controls {
+      display: flex; flex-direction: column; background: rgba(0, 0, 0, 0.6);
+      padding: 30px; border-radius: 24px; border: 2px solid #b38728;
+      backdrop-filter: blur(10px); min-width: 340px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .multiplier-msg { font-size: 15px; color: #ccc; font-weight: 400; margin: 5px 0 20px 0; letter-spacing: 0.5px; }
+    .multiplier-value { color: #fcf6ba; font-weight: 600; }
+
+    .bet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+
+    .bet-btn {
+      padding: 15px; border: 2px solid #b38728; border-radius: 12px;
+      cursor: pointer; font-weight: 800; background: linear-gradient(to bottom, #333, #000); 
+      color: #d4af37; transition: all 0.2s ease; text-transform: uppercase;
+      font-size: 14px;
+    }
+    .bet-btn:hover { border-color: #fcf6ba; transform: translateY(-2px); }
+    .bet-btn.active { 
+      background: linear-gradient(to bottom, #a11d1d, #4a0000);
+      color: #fff; border-color: #fcf6ba; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+    /* --- 6. INPUTS & QUICK BETS --- */
+    .input-group { display: flex; flex-direction: column; gap: 15px; }
+    .quick-bet-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    
+    .q-btn {
+      padding: 10px; border: 1px solid #b38728; border-radius: 8px;
+      background: #222; color: #fcf6ba; font-size: 14px; font-weight: bold;
+      cursor: pointer; transition: 0.2s;
+    }
+    .q-btn:hover { background: #b38728; color: #000; }
+
+    #betInput { 
+      padding: 14px; border-radius: 10px; border: 2px solid #b38728; 
+      background: #111; 
+      color: #fcf6ba; 
+      font-weight: 800; 
+      font-size: 20px; text-align: center; outline: none;
+    }
+
+    #spin-btn { 
+      padding: 18px; background: linear-gradient(to bottom, #fcf6ba, #b38728);
+      color: #000; font-weight: 900; font-size: 19px; border: none;
+      border-radius: 12px; cursor: pointer; text-transform: uppercase;
+      box-shadow: 0 5px 15px rgba(179, 135, 40, 0.4);
+    }
+
+    /* --- 7. MODALS --- */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.9); z-index: 2000; justify-content: center;
+      align-items: center; backdrop-filter: blur(5px);
+    }
+    
+    #resultModal .modal-content {
+      background: linear-gradient(135deg, #220000, #000);
+      border: 3px solid #d4af37; padding: 40px; border-radius: 30px;
+      text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
+      max-width: 400px; width: 90%;
+    }
+
+    #howModal .modal-content {
+      background: linear-gradient(135deg, #110000, #000);
+      border: 3px solid #d4af37; 
+      padding: 25px; 
+      border-radius: 20px;
+      text-align: center; 
+      box-shadow: 0 0 50px rgba(212, 175, 55, 0.5);
+      max-width: 400px; 
+      width: 90%;
+      max-height: 80vh; 
+      overflow-y: auto; 
+    }
+
+    #howModal h2 { font-size: 22px; margin-bottom: 15px; }
+    
+    .instr-text { text-align: left; line-height: 1.4; color: #ddd; margin: 10px 0; font-size: 14px; }
+    .instr-text p { margin: 15px 0 5px 0; }
+    .instr-text b { color: #fcf6ba; }
+    
+    .instr-img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 6px;
+      margin: 5px auto 10px auto; 
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="winSFX" src="victory.mp3"></audio>
+  <audio id="loseSFX" src="lose.mp3"></audio>
+
+  <canvas id="casino-bg"></canvas>
+
+  <nav>
+    <a href="#" class="brand">BMT (BetMoTo)</a>
+    <div class="nav-links">
+      <a href="casino-landing.html">Home</a> 
+      <a href="tokens.html">Tokens</a>
+      <a href="scoreboard.html">Score Board</a>
+    </div>
+  </nav>
+
+  <div class="game-wrapper">
+    <button class="how-btn" onclick="openHowItWorks()">❓ How it Works</button>
+
+    <div class="game-container">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div id="wheel"></div>
+      </div>
+
+      <div class="side-controls">
+        <h3 style="color: #fcf6ba; margin: 0; letter-spacing: 1px;">PLACE YOUR BET</h3>
+        <div class="multiplier-msg">Multiplier: <span class="multiplier-value">x2</span></div>
+        
+        <div class="bet-grid">
+          <button class="bet-btn" onclick="selectBet('ODD', this)">ODD</button>
+          <button class="bet-btn" onclick="selectBet('EVEN', this)">EVEN</button>
+          <button class="bet-btn" onclick="selectBet('LOW', this)">LOW (1-15)</button>
+          <button class="bet-btn" onclick="selectBet('HIGH', this)">HIGH (16-30)</button>
+        </div>
+
+        <div class="input-group">
+          <span style="font-size: 13px; color: #b38728; font-weight: bold;">AMOUNT</span>
+          <div class="quick-bet-row">
+              <button type="button" class="q-btn" onclick="setBet(10)">10</button>
+              <button type="button" class="q-btn" onclick="setBet(50)">50</button>
+              <button type="button" class="q-btn" onclick="setBet(100)">100</button>
+              <button type="button" class="q-btn" onclick="setBet('MAX')">MAX</button>
+          </div>
+          <input type="number" id="betInput" value="100">
+          <button id="spin-btn" onclick="spinWheel()">SPIN NOW</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modalBody"></div>
+      <button class="bet-btn" style="margin-top:30px; width:100%" onclick="closeModal('resultModal')">CONTINUE</button>
+    </div>
+  </div>
+
+  <div id="howModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 style="color: #fcf6ba; font-family: 'Bungee Inline'; margin-top: 0;">HOW TO PLAY</h2>
+      <div class="instr-text">
+        <p>1. <b>Pick a Bet:</b> Select ODD/EVEN or LOW/HIGH ranges.</p>
+        <img src="choices.png" alt="Bet Choices" class="instr-img">
+        
+        <p>2. <b>Set Amount:</b> Enter your tokens or use quick buttons.</p>
+        <img src="bet.png" alt="Bet Amount" class="instr-img">
+        
+        <p>3. <b>Spin:</b> Hit SPIN NOW and watch the 3D wheel turn.</p>
+        <img src="spin.png" alt="Spin Button" class="instr-img" style="max-width: 60%;">
+        
+        <p>4. <b>Win or Lose:</b> If the result matches your bet, you win <b>2x</b> your stake!</p>
+        <div style="display: flex; gap: 8px; justify-content: center; margin-top: 5px;">
+          <img src="resultwin.png" alt="Win Result" class="instr-img" style="width: 45%; margin: 0;">
+          <img src="resultlose.png" alt="Lose Result" class="instr-img" style="width: 45%; margin: 0;">
+        </div>
+      </div>
+      <button class="bet-btn" style="width:100%; margin-top: 15px; padding: 10px;" onclick="closeModal('howModal')">CLOSE</button>
+    </div>
+  </div>
+
+  <script>
+    /* --- JS: BACKGROUND & WHEEL --- */
+    const canvas = document.getElementById('casino-bg');
+    const ctx = canvas.getContext('2d');
+    const symbols = ['🪙', '💰', '🎰', '🎲', '💎'];
+    const particles = [];
+
+    function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width; this.y = Math.random() * -canvas.height; 
+        this.size = Math.random() * 20 + 15; this.speedY = Math.random() * 1.5 + 0.5; 
+        this.symbol = symbols[Math.floor(Math.random() * symbols.length)]; this.opacity = Math.random() * 0.25; 
+      }
+      update() { this.y += this.speedY; if (this.y > canvas.height + 50) this.reset(); }
+      draw() { ctx.globalAlpha = this.opacity; ctx.font = `${this.size}px Arial`; ctx.fillText(this.symbol, this.x, this.y); }
+    }
+    for (let i = 0; i < 30; i++) particles.push(new Particle());
+    function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+    initCanvas(); animate();
+
+    const wheel = document.getElementById('wheel');
+    const totalNumbers = 30;
+    const sliceAngle = 360 / totalNumbers;
+    let gradientStops = [];
+    for (let i = 0; i < totalNumbers; i++) {
+      let color = (i % 2 === 0) ? '#a11d1d' : '#1a1a1a';
+      gradientStops.push(`${color} ${i * sliceAngle}deg ${(i + 1) * sliceAngle}deg`);
+    }
+    wheel.style.background = `conic-gradient(${gradientStops.join(', ')})`;
+    for (let i = 1; i <= totalNumbers; i++) {
+      const numDiv = document.createElement('div');
+      numDiv.className = 'number'; numDiv.innerText = i;
+      let angle = (i - 1) * sliceAngle + (sliceAngle / 2) - 90; 
+      numDiv.style.transform = `rotate(${angle}deg) translate(210px) rotate(90deg)`;
+      wheel.appendChild(numDiv);
+    }
+
+    /* --- JS: GAMEPLAY & MODAL LOGIC --- */
+    let userTokens = 1250; 
+    let currentRotation = 0;
+    let selectedBetType = null;
+    const betInput = document.getElementById('betInput');
+
+    function openHowItWorks() { document.getElementById('howModal').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function setBet(amount) { 
+        if(amount === 'MAX') betInput.value = userTokens; 
+        else betInput.value = amount; 
+    }
+
+    function selectBet(type, element) {
+      selectedBetType = type;
+      document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+    }
+
+    function spinWheel() {
+      if (!selectedBetType) return alert("Select a bet type first!");
+      const betAmount = parseInt(betInput.value);
+      if (betAmount > userTokens) return alert("Not enough tokens!");
+
+      const spinBtn = document.getElementById('spin-btn');
+      spinBtn.disabled = true;
+      
+      const winningNumber = Math.floor(Math.random() * 30) + 1;
+      const originalAngle = (winningNumber - 1) * sliceAngle + (sliceAngle / 2);
+      const targetMod = 360 - originalAngle;
+      const baseSpins = Math.floor(currentRotation / 360) * 360 + 2160; 
+      
+      currentRotation = baseSpins + targetMod;
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+      
+      setTimeout(() => { 
+        displayResult(winningNumber); 
+        spinBtn.disabled = false; 
+      }, 4000); 
+    }
+
+    function displayResult(num) {
+      const isWin = (selectedBetType === 'ODD' && num % 2 !== 0) || (selectedBetType === 'EVEN' && num % 2 === 0) || (selectedBetType === 'LOW' && num <= 15) || (selectedBetType === 'HIGH' && num >= 16);
+      const betVal = parseInt(betInput.value);
+      
+      if(isWin) {
+        userTokens += betVal;
+        const sfx = document.getElementById('winSFX');
+        sfx.currentTime = 0;
+        sfx.play().catch(e => console.log("Audio block: user interaction needed"));
+        
+        // Stops the victory sound after 2 seconds
+        setTimeout(() => { sfx.pause(); sfx.currentTime = 0; }, 2000); 
+      } else {
+        userTokens -= betVal;
+        const sfx = document.getElementById('loseSFX');
+        sfx.currentTime = 0;
+        sfx.play().catch(e => console.log("Audio block: user interaction needed"));
+        
+        // Stops the lose sound after 2 seconds
+        setTimeout(() => { sfx.pause(); sfx.currentTime = 0; }, 2000);
+      }
+
+      document.getElementById('modalBody').innerHTML = `
+        <h1 style="color:#fcf6ba; font-size: 70px; margin:0; text-shadow: 0 0 20px rgba(252,246,186,0.4);">${num}</h1>
+        <p style="font-size: 18px; color: #aaa;">Your Bet: <span style="color: #fff;">${selectedBetType}</span></p>
+        <h2 style="color:${isWin ? '#4caf50' : '#ff4c4c'}; font-size: 32px;">${isWin ? 'JACKPOT!' : 'LOSE'}</h2>
+        <p style="font-size:26px; font-weight: bold;">${isWin ? '+' : '-'}${betVal} Points</p>
+      `;
+      document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    window.addEventListener('resize', initCanvas);
+  </script>
+</body>
+</html>
