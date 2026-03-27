@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Casino Game Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    /* Header now acts as the video container */
+    header {
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+      line-height: 0; /* Removes tiny gap at the bottom of the video */
+    }
+
+    header video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Subline styling moved below the video */
+    .subline {
+      font-size: 18px;
+      color: #ccc;
+      margin: 30px 0 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .game-card {
+      background: #222;
+      border: 2px solid #ffcc00;
+      border-radius: 8px;
+      margin: 15px;
+      padding: 20px;
+      width: 250px;
+      height: 220px;
+      box-sizing: border-box;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .game-card:hover {
+      transform: scale(1.05);
+      border-color: #fff;
+    }
+
+    .game-card h2 { color: #ffcc00; margin-top: 0; font-size: 20px; }
+    .game-card p { min-height: 40px; font-size: 14px; }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: #ffcc00;
+      color: #111;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .btn:hover { background: #fff; color: #111; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <video autoplay muted loop playsinline>
+      <source src="heading.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </header>
+
+  <p class="subline">Select your challenge below</p>
+
+  <div class="card-container">
+    <div class="game-card">
+      <h2>Classic Wheel</h2>
+      <p>Bet Odd, Even, High, or Low.</p>
+      <a href="games/UI/wheel.html" class="btn">Play</a>
+    </div>
+
+    <div class="game-card">
+      <h2>Lucky 7</h2>
+      <p>Hit multiples of 7 for extra points.</p>
+      <a href="games/UI/lucky7.html" class="btn">Play</a>
+    </div>
+
+    <div class="game-card">
+      <h2>Color Quest</h2>
+      <p>Match Red, Blue, or Yellow patterns.</p>
+      <a href="games/UI/colorquest.html" class="btn">Play</a>
+    </div>
+
+    <div class="game-card">
+      <h2>Prime Predictor</h2>
+      <p>Bet on prime numbers.</p>
+      <a href="games/UI/prime.html" class="btn">Play</a>
+    </div>
+
+    <div class="game-card">
+      <h2>Dice Duel</h2>
+      <p>Roll two dice and bet Big or Small.</p>
+      <a href="games/UI/dice.html" class="btn">Play</a>
+    </div>
+
+    <div class="game-card">
+      <h2>Blackjack</h2>
+      <p>Beat the dealer to 21 without going bust.</p>
+      <a href="games/UI/blackjack.html" class="btn">Play</a>
+    </div>
+  </div>
+
+</body>
+</html>
